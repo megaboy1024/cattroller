@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+canvas {
+    border:1px solid #d3d3d3;
+    background-color: #fff;
+}
+</style>
+</head>
+<body onload="startGame()">
+<script>
+
+var myGamePiece;
+var myGamePiece2;
+
+function startGame() {
+    myGameArea.start();
+    myGamePiece = new component(100, 100, "https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1.png", 0, 100, "image");
+    myGamePiece2 = new component(100, 100, "kitty2.svg", 0, 200, "image");
+
+}
+
+var myGameArea = {
+    canvas : document.createElement("canvas"),
+    start : function() {
+        this.canvas.width = 960;
+        this.canvas.height = 540;
+        this.context = this.canvas.getContext("2d");
+        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.interval = setInterval(updateGameArea, 20);
+        window.addEventListener('keydown', function (e) {
+            myGameArea.key = e.keyCode;
+        })
+        window.addEventListener('keyup', function (e) {
+            myGameArea.key = false;
+        })
+    }, 
+    clear : function(){
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+}
+
+function component(width, height, color, x, y, type) {
+    this.type = type;
+    if (type == "image") {
+    this.image = new Image();
+    this.image.src = color;
+}
+    this.gamearea = myGameArea;
+    this.width = width;
+    this.height = height;
+    this.moveX = 0;
+    this.moveY = 0;    
+    this.x = x;
+    this.y = y;    
+    this.update = function() {
+        ctx = myGameArea.context;
+       if (type == "image") {
+      ctx.drawImage(this.image, 
+        this.x, 
+        this.y,
+        this.width, this.height);
+    } else {
+      ctx.fillStyle = color;
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+    }
+    this.newPos = function() {
+        this.x += this.moveX;
+        this.y += this.moveY;        
+    }
+}
+
+function updateGameArea() {
+    myGameArea.clear();
+    myGamePiece.moveX = 0;
+    myGamePiece.moveY = 0;
+    myGamePiece2.moveX = 0;
+    myGamePiece2.moveY = 0;       
+
+    myGamePiece.newPos();    
+    myGamePiece.update();
+    myGamePiece2.newPos();    
+    myGamePiece2.update();
+}
+
+function keyupFunction() {
+    if (myGameArea.key && myGameArea.key == 37) {myGamePiece.moveX = -myGamePiece.width; }
+    if (myGameArea.key && myGameArea.key == 39) {myGamePiece.moveX = myGamePiece.width; }
+    if (myGameArea.key && myGameArea.key == 38) {myGamePiece.moveY = -myGamePiece.height; }
+    if (myGameArea.key && myGameArea.key == 40) {myGamePiece.moveY = myGamePiece.height; }
+
+    if (myGameArea.key && myGameArea.key == 65) {myGamePiece2.moveX = -myGamePiece2.width; }
+    if (myGameArea.key && myGameArea.key == 68) {myGamePiece2.moveX = myGamePiece2.width; }
+    if (myGameArea.key && myGameArea.key == 87) {myGamePiece2.moveY = -myGamePiece2.height; }
+    if (myGameArea.key && myGameArea.key == 83) {myGamePiece2.moveY = myGamePiece2.height; }
+    
+    if (myGamePiece.x + myGamePiece.width > myGameArea.canvas.width) {
+        myGamePiece.x = myGameArea.canvas.width-myGamePiece.width;
+    } 
+    if (myGamePiece.x < myGamePiece.width+1) {
+        myGamePiece.x = myGamePiece.width;
+    } 
+    if (myGamePiece.y + myGamePiece.height > myGameArea.canvas.height) {
+        myGamePiece.y = myGameArea.canvas.height-myGamePiece.height;
+    } 
+    if (myGamePiece.y < 0) {
+        myGamePiece.y = 0;
+    } 
+
+ if (myGamePiece2.x + myGamePiece.width > myGameArea.canvas.width) {
+        myGamePiece2.x = myGameArea.canvas.width-myGamePiece.width;
+    } 
+    if (myGamePiece2.x < 0) {
+        myGamePiece2.x = 0;
+    } 
+    if (myGamePiece2.y + myGamePiece.height > myGameArea.canvas.height) {
+        myGamePiece2.y = myGameArea.canvas.height-myGamePiece.height;
+    } 
+    if (myGamePiece2.y < 0) {
+        myGamePiece2.y = 0;
+    } 
+
+    myGamePiece.newPos();    
+    myGamePiece.update();
+    myGamePiece2.newPos();    
+    myGamePiece2.update();
+    }
+</script>
+<br>
+<input type="text" id="demo" maxlength="0" onkeydown="keydownFunction()" onkeyup="keyupFunction()">
+
+
+<input type="text" id="txt" placeholder="Direction">
+    <input type="button" id="btn" value="Move">
+    <ul id="list">
+
+</ul>
+</body>
+<script src="https://www.gstatic.com/firebasejs/5.5.8/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyC-otDXAsIqq-wt01lzPmww3KsaPdjcDyg",
+    authDomain: "cryptokitties-joystick.firebaseapp.com",
+    databaseURL: "https://cryptokitties-joystick.firebaseio.com",
+    projectId: "cryptokitties-joystick",
+    storageBucket: "cryptokitties-joystick.appspot.com",
+    messagingSenderId: "1055338785883"
+  };
+  firebase.initializeApp(config);
+
+  const txt = document.getElementById("txt");
+const send = document.getElementById("btn");
+const list = document.getElementById("list");
+const keyValue = firebase.database().ref("keyValue");
+
+/*
+** 添加 keyValue
+*/
+send.addEventListener("click", () => {
+    keyValue.push({
+        content: txt.value
+    });
+    txt.value = "";
+});
+
+
+
+
+
+/*
+** 雙向綁定，動態更新
+*/
+keyValue.on("value", snapshot => {
+    let str = "";
+    // let data = snapshot.val();
+    let data = [];
+    snapshot.forEach(item => {
+        data.push({ content: item.val().content });
+    });
+    
+    // 讓新加入的 todo 排到最上面
+    data.reverse();
+    
+    // for (let item in data) {
+    //  str += `<li data-key="${item}">${data[item].content}</li>`;
+    // }
+    
+    for (let i = 0; i < data.length; i++) {
+        str += `<li data-key="${data[i].key}">${data[i].content}</li>`;
+    }
+    list.innerHTML = str;
+});
+
+
+
+
+
+/*
+** 移除 keyValue
+*/
+list.addEventListener("click", evt => {
+    if (evt.target.nodeName === "LI") {
+        let key = evt.target.dataset.key;
+        keyValue.child(key).remove();
+    }
+});
+</script>
+</html>

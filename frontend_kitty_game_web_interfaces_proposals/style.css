@@ -1,0 +1,30 @@
+*{
+	text-align: center !important;
+	font-family: 'Niramit', sans-serif;
+
+}
+
+body {
+	background-image: url("pattern.png");
+}
+
+#start {
+	width: 200px;
+	height: 80px;
+	font-weight: 700;
+	font-size: 20px;
+}
+
+#player {
+
+}
+
+#kitty1 {
+}
+
+#kitty2 {
+}
+
+#info {
+	font-weight: 700;
+}

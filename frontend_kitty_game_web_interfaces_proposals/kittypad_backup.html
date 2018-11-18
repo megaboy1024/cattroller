@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+canvas {
+    border:0px solid #d3d3d3;
+    background-color: #fff;
+    -webkit-box-shadow: -16px 10px 65px 0px rgba(209,209,209,0.65);
+-moz-box-shadow: -16px 10px 65px 0px rgba(209,209,209,0.65);
+box-shadow: -16px 10px 65px 0px rgba(209,209,209,0.65);
+}
+</style>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="style.css">
+<link href="https://fonts.googleapis.com/css?family=Niramit:300,400,700" rel="stylesheet">
+</head>
+<body onload="startGame()">
+<script>
+
+var myGamePiece;
+var myGamePiece2;
+// var client = new HttpClient();
+var cattributes;
+var kittyImg = "https://img.cn.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/67.svg";
+var kittyName;
+
+
+function startGame() {
+     myGameArea.start();  
+    
+     client = new HttpClient();
+     client.get('http://5b9335ef.ngrok.io/info/67', function(response) {
+            var cattributes = response;
+            // window.alert(response);
+
+            var obj = JSON.parse(cattributes);
+            // window.alert(obj.image_url);
+            kittyImg = "";
+            kittyImg = '"' + obj.image_url_cdn + '"';
+             // window.alert(kittyImg);    
+
+            kittyName = obj.name;
+        });
+
+
+      client = new HttpClient();
+     client.get('http://159c65e6.ngrok.io/action/1/null', function(response) {
+            var controllerKeyValue = response;
+
+            var obj = JSON.parse(controllerKeyValue);
+            
+            ControllerKey = obj;
+        });
+
+
+        
+        
+}
+
+function startFunction() {
+    setImg();
+    document.getElementById("info").innerHTML = kittyName;
+    
+}
+
+function setImg () {
+    myGamePiece = new component(100, 100, "kitty1.svg", 0, 100, "image");
+    myGamePiece2 = new component(100, 100, "kitty2.svg", 0, 200, "image");
+}
+
+var myGameArea = {
+    canvas : document.createElement("canvas"),
+    start : function() {
+        this.canvas.width = 960;
+        this.canvas.height = 540;
+        this.context = this.canvas.getContext("2d");
+        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.interval = setInterval(updateGameArea, 20);
+        window.addEventListener('keydown', function (e) {
+            myGameArea.key = e.keyCode;
+        })
+        window.addEventListener('keyup', function (e) {
+            myGameArea.key = false;
+        })
+    }, 
+    clear : function(){
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+}
+
+function component(width, height, color, x, y, type) {
+    this.type = type;
+    if (type == "image") {
+    this.image = new Image();
+    this.image.src = color;
+}
+    this.gamearea = myGameArea;
+    this.width = width;
+    this.height = height;
+    this.moveX = 0;
+    this.moveY = 0;    
+    this.x = x;
+    this.y = y;    
+    this.update = function() {
+        ctx = myGameArea.context;
+       if (type == "image") {
+      ctx.drawImage(this.image, 
+        this.x, 
+        this.y,
+        this.width, this.height);
+    } else {
+      ctx.fillStyle = color;
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+    }
+    this.newPos = function() {
+        this.x += this.moveX;
+        this.y += this.moveY;        
+    }
+}
+
+function updateGameArea() {
+    myGameArea.clear();
+    myGamePiece.moveX = 0;
+    myGamePiece.moveY = 0;
+    myGamePiece2.moveX = 0;
+    myGamePiece2.moveY = 0;       
+
+    myGamePiece.newPos();    
+    myGamePiece.update();
+    myGamePiece2.newPos();    
+    myGamePiece2.update();
+     
+
+}
+
+
+
+function keyupFunction() {
+    if (myGameArea.key && myGameArea.key == 37) {myGamePiece.moveX = -myGamePiece.width; }
+    if (myGameArea.key && myGameArea.key == 39) {myGamePiece.moveX = myGamePiece.width; }
+    if (myGameArea.key && myGameArea.key == 38) {myGamePiece.moveY = -myGamePiece.height; }
+    if (myGameArea.key && myGameArea.key == 40) {myGamePiece.moveY = myGamePiece.height; }
+
+    if (myGameArea.key && myGameArea.key == 65) {myGamePiece2.moveX = -myGamePiece2.width; }
+    if (myGameArea.key && myGameArea.key == 68) {myGamePiece2.moveX = myGamePiece2.width; }
+    if (myGameArea.key && myGameArea.key == 87) {myGamePiece2.moveY = -myGamePiece2.height; }
+    if (myGameArea.key && myGameArea.key == 83) {myGamePiece2.moveY = myGamePiece2.height; }
+    
+    if (myGamePiece.x + myGamePiece.width > myGameArea.canvas.width) {
+        myGamePiece.x = myGameArea.canvas.width-myGamePiece.width;
+
+        
+    } 
+    if (myGamePiece.x < myGamePiece.width+1) {
+        myGamePiece.x = myGamePiece.width;
+    } 
+    if (myGamePiece.y + myGamePiece.height > myGameArea.canvas.height) {
+        myGamePiece.y = myGameArea.canvas.height-myGamePiece.height;
+    } 
+    if (myGamePiece.y < 0) {
+        myGamePiece.y = 0;
+    } 
+
+ if (myGamePiece2.x + myGamePiece.width > myGameArea.canvas.width) {
+        myGamePiece2.x = myGameArea.canvas.width-myGamePiece.width;
+    } 
+    if (myGamePiece2.x < 0) {
+        myGamePiece2.x = 0;
+    } 
+    if (myGamePiece2.y + myGamePiece.height > myGameArea.canvas.height) {
+        myGamePiece2.y = myGameArea.canvas.height-myGamePiece.height;
+    } 
+    if (myGamePiece2.y < 0) {
+        myGamePiece2.y = 0;
+    } 
+
+    myGamePiece.newPos();    
+    myGamePiece.update();
+    myGamePiece2.newPos();    
+    myGamePiece2.update();
+    }
+
+
+
+ var HttpClient = function() {
+    this.get = function(aUrl, aCallback) {
+        var anHttpRequest = new XMLHttpRequest();
+        anHttpRequest.onreadystatechange = function() { 
+            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
+                aCallback(anHttpRequest.responseText);
+        }
+
+        anHttpRequest.open( "GET", aUrl, true );            
+        anHttpRequest.send( null );
+    }
+}
+
+
+function moveup() {
+    myGamePiece.moveY = -myGamePiece.height;
+
+    myGamePiece.newPos();    
+    myGamePiece.update();
+}
+
+function movedown() {
+    myGamePiece.moveY = myGamePiece.height;
+
+    myGamePiece.newPos();    
+    myGamePiece.update();
+}
+
+function moveleft() {
+    myGamePiece.moveX = -myGamePiece.width;
+
+    myGamePiece.newPos();    
+    myGamePiece.update();
+}
+
+function moveright() {
+    myGamePiece.moveX = myGamePiece.width;
+
+    myGamePiece.newPos();    
+    myGamePiece.update();
+}
+
+function moveup2() {
+    myGamePiece2.moveY = -myGamePiece.height;
+
+    myGamePiece2.newPos();    
+    myGamePiece2.update();
+}
+
+function movedown2() {
+    myGamePiece2.moveY = myGamePiece.height;
+
+    myGamePiece2.newPos();    
+    myGamePiece2.update();
+}
+
+function moveleft2() {
+    myGamePiece2.moveX = -myGamePiece.width;
+
+    myGamePiece2.newPos();    
+    myGamePiece2.update();
+}
+
+function moveright2() {
+    myGamePiece2.moveX = myGamePiece.width;
+
+    myGamePiece2.newPos();    
+    myGamePiece2    .update();
+}
+
+</script>
+ 
+<br><br><br>
+
+
+<div id="player">
+    <div class="row">
+    <div class="col-4" id="kitty1">
+    <h2 id="info">Player 1</h2><br>
+    <button class="btn btn-light" onclick="moveup()">UP</button><br>
+    <button class="btn btn-light" onclick="moveleft()">LEFT</button>
+    <button class="btn btn-light" onclick="moveright()">RIGHT</button><br>
+    <button class="btn btn-light" onclick="movedown()">DOWN</button>
+    </div>
+
+    <div class="col-4" id="kitty1">
+     <img src="logo.png" width="300px"><br><br><br>
+   <input class="btn btn-dark" id="start" type="button" value="START" onclick="startFunction();" />
+    <br><br>
+    <input type="text" id="demo" maxlength="0" onkeydown="keydownFunction()" onkeyup="keyupFunction()">
+    </div>
+
+    <div class="col-4" id="kitty2">
+    <h2 id="info">Player 2</h2><br>
+    <button class="btn btn-light" onclick="moveup2()">UP</button><br>
+    <button class="btn btn-light" onclick="moveleft2()">LEFT</button>
+    <button class="btn btn-light" onclick="moveright2()">RIGHT</button><br>
+    <button class="btn btn-light" onclick="movedown2()">DOWN</button>
+    </div>
+    </div>
+</div>
+
+</body>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+</html>
